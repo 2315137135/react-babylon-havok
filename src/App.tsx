@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useRef} from 'react';
 import './App.css';
+import {Engine, Scene} from "@babylonjs/core";
+import {initScene} from "./initScene";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const canvasRef = useRef(null)
+
+    useEffect(() => {
+        if (!canvasRef.current) return
+        const engine = new Engine(canvasRef.current)
+        const scene = new Scene(engine)
+        initScene(engine, scene)
+        const renderLoop = () => scene.render()
+        const resize = () => engine.resize()
+
+        engine.runRenderLoop(renderLoop)
+        window.addEventListener("resize", resize)
+        return () => {
+            engine.dispose()
+            window.removeEventListener("resize", resize)
+        }
+    }, [])
+    return (
+        <div className="App">
+            <canvas ref={canvasRef}></canvas>
+        </div>
+    );
 }
 
 export default App;
